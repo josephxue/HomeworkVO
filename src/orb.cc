@@ -1,11 +1,15 @@
 #include "orb.h"
 
+#include <math.h>
+
 
 std::vector<FastKeyPoint> keypoints;
 
 
 void ComputeOrbFeatures(cv::Mat* img) {
   DetectKeyPoints(img);
+
+  ComputeOrientation(img, keypoints, kWindowSize);
 }
 
 void DetectKeyPoints(cv::Mat* img) {
@@ -23,13 +27,12 @@ void DetectKeyPoints(cv::Mat* img) {
   }
 
   // cv::Mat fast_keypoints_visualization = *img;
+  // cvtColor(fast_keypoints_visualization, fast_keypoints_visualization, CV_GRAY2BGR);
   // for (auto p : keypoints) {
-  //   cv::circle(fast_keypoints_visualization, cv::Point(p.x, p.y), 3, cv::Scalar(0, 255, 0));
+  //   cv::circle(fast_keypoints_visualization, cv::Point(p.x, p.y), 2, cv::Scalar(0, 255, 0));
   // }
   // cv::imshow("FAST Keypoints Visualization", fast_keypoints_visualization);
   // cv::waitKey(0);
-
-  keypoints.clear();
 }
 
 cv::Mat ComputeResponse(cv::Mat* img, int threshold) {
@@ -118,5 +121,18 @@ void NonMaximumSuppression(cv::Mat& response, cv::Mat& is_localmax, int window_s
         is_localmax.at<uint8_t>(i,j) = local_maxes.at<float>(i,j) == response.at<float>(i,j) ? 255 : 0;
       }
     }
+  }
+}
+
+void ComputeOrientation(cv::Mat* img, std::vector<FastKeyPoint>& keypoints, int window_size) {
+  int m01 = 0, m10 = 0;
+  for (auto pt : keypoints) {
+    for (int i = pt.y - window_size/2; i <= pt.y + window_size; i++) {
+      for (int j = pt.x - window_size/2; j <= pt.x + window_size; j++) {
+        m10 += j * (*img).at<uint8_t>(i,j);
+        m01 += i * (*img).at<uint8_t>(i,j);
+      }
+    }
+    pt.orientation = atan((float)m01/m10);
   }
 }
