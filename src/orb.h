@@ -5,8 +5,9 @@
 #include <opencv2/opencv.hpp>
 
 
+const int kWindowSize = 3;
+
 const float kThreshold = 50;
-const float kQualityLevel = 0.01;
 
 
 struct FastKeyPoint {
@@ -23,5 +24,7 @@ void ComputeOrbFeatures(cv::Mat* img);
 void DetectKeyPoints(cv::Mat* img);
 
 cv::Mat ComputeResponse(cv::Mat* img, int threshold);
+
+void NonMaximumSuppression(cv::Mat& response, cv::Mat& is_localmax, int window_size);
 
 #endif

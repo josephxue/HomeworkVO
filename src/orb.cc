@@ -11,36 +11,22 @@ void ComputeOrbFeatures(cv::Mat* img) {
 void DetectKeyPoints(cv::Mat* img) {
   // compute FAST response
   cv::Mat response = ComputeResponse(img, kThreshold);
+  
+  cv::Mat is_localmax = cv::Mat::zeros(cv::Size(response.cols, response.rows), CV_8U);
+  NonMaximumSuppression(response, is_localmax, kWindowSize);
+  std::vector<cv::Point> fast_locations;
 
-  cv::Mat local_max;
-  cv::dilate(response, local_max, cv::Mat());
+  cv::findNonZero(is_localmax, fast_locations);
 
-  double max_val(0.0);
-  cv::minMaxLoc(local_max, NULL, &max_val);
-
-  cv::Mat is_strong_and_local_max = cv::Mat::zeros(cv::Size(response.cols, response.rows), CV_8U);
-  std::vector<cv::Point> max_locations;
-
-  float one_response, one_local_max;
-  cv::Point max_location;
-  for (int i = 0; i < response.rows; i++) {
-    for (int j = 0; j < response.cols; j++) {
-      one_response  = response.at<float>(i, j);
-      one_local_max = local_max.at<float>(i, j);
-      is_strong_and_local_max.at<uint8_t>(i, j) = one_response > max_val*kQualityLevel && one_response == one_local_max ? 255 : 0;
-    }
-  }
-  cv::findNonZero(is_strong_and_local_max, max_locations);
-
-  for (const auto& point : max_locations) {
-    keypoints.emplace_back(FastKeyPoint(point.x, point.y, response.at<float>(point)));
+  for (const auto& fl: fast_locations) {
+    keypoints.emplace_back(FastKeyPoint(fl.x, fl.y, response.at<float>(fl)));
   }
 
-  // cv::Mat img1 = *img;
+  // cv::Mat fast_keypoints_visualization = *img;
   // for (auto p : keypoints) {
-  //   cv::circle(img1, cv::Point(p.x, p.y), 3, cv::Scalar(0, 0, 255));
+  //   cv::circle(fast_keypoints_visualization, cv::Point(p.x, p.y), 3, cv::Scalar(0, 255, 0));
   // }
-  // cv::imshow("aaa", img1);
+  // cv::imshow("FAST Keypoints Visualization", fast_keypoints_visualization);
   // cv::waitKey(0);
 
   keypoints.clear();
@@ -111,4 +97,26 @@ cv::Mat ComputeResponse(cv::Mat* img, int threshold) {
   }
 
   return response;
+}
+
+void NonMaximumSuppression(cv::Mat& response, cv::Mat& is_localmax, int window_size) {
+  cv::Mat local_maxes = cv::Mat::zeros(cv::Size(response.cols, response.rows), CV_32F);
+  for (int i = window_size/2; i < response.rows-window_size/2; i++) {
+    for (int j = window_size/2; j < response.cols-window_size/2; j++) {
+      if (response.at<float>(i, j) > 0) {
+        double local_max = 0;
+        cv::Mat block = response(cv::Rect(j-window_size/2, i-window_size/2, window_size, window_size));
+        cv::minMaxLoc(block, NULL, &local_max);
+        local_maxes.at<float>(i, j) = local_max;
+      }
+    }
+  }
+
+  for (int i = window_size/2; i < response.rows-window_size/2; i++) {
+    for (int j = window_size/2; j < response.cols-window_size/2; j++) {
+      if (response.at<float>(i, j) > 0) {
+        is_localmax.at<uint8_t>(i,j) = local_maxes.at<float>(i,j) == response.at<float>(i,j) ? 255 : 0;
+      }
+    }
+  }
 }
