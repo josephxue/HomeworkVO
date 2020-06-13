@@ -3,16 +3,17 @@
 #include <math.h>
 
 
-std::vector<FastKeyPoint> keypoints;
+void ComputeOrbFeatures(cv::Mat* img, cv::Mat& descriptors) {
+  std::vector<cv::KeyPoint> keypoints;
 
-
-void ComputeOrbFeatures(cv::Mat* img) {
-  DetectKeyPoints(img);
-
+  DetectKeyPoints(img, keypoints);
   ComputeOrientation(img, keypoints, kWindowSize);
+
+  cv::Ptr<cv::ORB> orb = cv::ORB::create(500, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
+  orb->compute(*img, keypoints, descriptors);
 }
 
-void DetectKeyPoints(cv::Mat* img) {
+void DetectKeyPoints(cv::Mat* img, std::vector<cv::KeyPoint>& keypoints) {
   // compute FAST response
   cv::Mat response = ComputeResponse(img, kThreshold);
   
@@ -23,16 +24,13 @@ void DetectKeyPoints(cv::Mat* img) {
   cv::findNonZero(is_localmax, fast_locations);
 
   for (const auto& fl: fast_locations) {
-    keypoints.emplace_back(FastKeyPoint(fl.x, fl.y, response.at<float>(fl)));
+    keypoints.emplace_back(cv::KeyPoint(cv::Point(fl.x, fl.y), -1, -1, response.at<float>(fl)));
   }
 
-  // cv::Mat fast_keypoints_visualization = *img;
-  // cvtColor(fast_keypoints_visualization, fast_keypoints_visualization, CV_GRAY2BGR);
-  // for (auto p : keypoints) {
-  //   cv::circle(fast_keypoints_visualization, cv::Point(p.x, p.y), 2, cv::Scalar(0, 255, 0));
-  // }
-  // cv::imshow("FAST Keypoints Visualization", fast_keypoints_visualization);
-  // cv::waitKey(0);
+  cv::Mat fast_keypoints_visualization;
+  cv::drawKeypoints(*img, keypoints, fast_keypoints_visualization);
+  cv::imshow("FAST Keypoints Visualization", fast_keypoints_visualization);
+  cv::waitKey(0);
 }
 
 cv::Mat ComputeResponse(cv::Mat* img, int threshold) {
@@ -124,15 +122,15 @@ void NonMaximumSuppression(cv::Mat& response, cv::Mat& is_localmax, int window_s
   }
 }
 
-void ComputeOrientation(cv::Mat* img, std::vector<FastKeyPoint>& keypoints, int window_size) {
+void ComputeOrientation(cv::Mat* img, std::vector<cv::KeyPoint>& keypoints, int window_size) {
   int m01 = 0, m10 = 0;
-  for (auto pt : keypoints) {
-    for (int i = pt.y - window_size/2; i <= pt.y + window_size; i++) {
-      for (int j = pt.x - window_size/2; j <= pt.x + window_size; j++) {
+  for (auto kpt : keypoints) {
+    for (int i = kpt.pt.x - window_size/2; i <= kpt.pt.y + window_size; i++) {
+      for (int j = kpt.pt.x - window_size/2; j <= kpt.pt.x + window_size; j++) {
         m10 += j * (*img).at<uint8_t>(i,j);
         m01 += i * (*img).at<uint8_t>(i,j);
       }
     }
-    pt.orientation = atan((float)m01/m10);
+    kpt.angle = atan((float)m01/m10);
   }
 }
