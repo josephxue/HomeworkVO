@@ -3,7 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 
-void ProcessFrame(cv::Mat* left_img, cv::Mat* right_img);
+void ProcessFrame(const cv::Mat& left_img, const cv::Mat& right_img);
 
 
 

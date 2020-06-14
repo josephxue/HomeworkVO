@@ -56,7 +56,7 @@ int main (int argc, char** argv) {
     cv::resize(right_img, right_img, cv::Size(640, 192), cv::INTER_LINEAR);
 
     // entry to algorithm
-    ProcessFrame(&left_img, &right_img);
+    ProcessFrame(left_img, right_img);
 
 
 
