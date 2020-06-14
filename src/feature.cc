@@ -1,17 +1,7 @@
-#include "orb.h"
+#include "feature.h"
 
 #include <math.h>
 
-
-void ComputeOrbFeatures(cv::Mat* img, cv::Mat& descriptors) {
-  std::vector<cv::KeyPoint> keypoints;
-
-  DetectKeyPoints(img, keypoints);
-  ComputeOrientation(img, keypoints, kWindowSize);
-
-  cv::Ptr<cv::ORB> orb = cv::ORB::create(500, 1.2f, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
-  orb->compute(*img, keypoints, descriptors);
-}
 
 void DetectKeyPoints(cv::Mat* img, std::vector<cv::KeyPoint>& keypoints) {
   // compute FAST response
@@ -27,10 +17,12 @@ void DetectKeyPoints(cv::Mat* img, std::vector<cv::KeyPoint>& keypoints) {
     keypoints.emplace_back(cv::KeyPoint(cv::Point(fl.x, fl.y), -1, -1, response.at<float>(fl)));
   }
 
-  cv::Mat fast_keypoints_visualization;
-  cv::drawKeypoints(*img, keypoints, fast_keypoints_visualization);
-  cv::imshow("FAST Keypoints Visualization", fast_keypoints_visualization);
-  cv::waitKey(0);
+  ComputeOrientation(img, keypoints, kWindowSize);
+
+  // cv::Mat fast_keypoints_visualization;
+  // cv::drawKeypoints(*img, keypoints, fast_keypoints_visualization);
+  // cv::imshow("FAST Keypoints Visualization", fast_keypoints_visualization);
+  // cv::waitKey(0);
 }
 
 cv::Mat ComputeResponse(cv::Mat* img, int threshold) {
@@ -133,4 +125,20 @@ void ComputeOrientation(cv::Mat* img, std::vector<cv::KeyPoint>& keypoints, int 
     }
     kpt.angle = atan((float)m01/m10);
   }
+}
+
+double ComputeHammingDistance(
+    const cv::Mat& left_descriptors,  int i, 
+    const cv::Mat& right_descriptors, int j) {
+  double ret = 0;
+  for (int k = 0; k < 32; k++) {
+    unsigned char u_left  = left_descriptors.at<uchar>(i,k);
+    unsigned char u_right = right_descriptors.at<uchar>(j,k);
+    while (u_left != u_right) {
+      ret += (u_left & 1) ^ (u_right & 1);
+      u_left  >>= 1; 
+      u_right >>= 1;
+    }
+  }
+  return ret;
 }
