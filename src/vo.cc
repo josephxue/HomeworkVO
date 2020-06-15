@@ -2,11 +2,23 @@
 
 #include <iostream>
 
+#include <Eigen/Core>
 
+#include "motion.h"
 #include "feature.h"
 
 
-void ProcessFrame(const cv::Mat& left_img, const cv::Mat& right_img) {
+std::unordered_map<int, cv::Point3f> previous_points;
+std::vector<cv::KeyPoint> previous_left_keypoints, previous_right_keypoints;
+
+cv::Mat previous_left_img;
+cv::Mat previous_left_descriptors, previous_right_descriptors;
+
+
+bool ProcessFrame(
+    const cv::Mat& left_img, const cv::Mat& right_img, 
+    Eigen::Matrix4d& pose_inc) {
+
   std::vector<cv::KeyPoint> left_keypoints, right_keypoints;
   cv::Mat left_descriptors, right_descriptors;
 
@@ -18,11 +30,42 @@ void ProcessFrame(const cv::Mat& left_img, const cv::Mat& right_img) {
   // cv::imshow("FAST Keypoints Visualization", fast_keypoints_visualization);
   // cv::waitKey(0);
 
-  std::vector<cv::DMatch> matches;
-  MatchFeatures(left_descriptors, right_descriptors, matches);
+  std::vector<cv::DMatch> stereo_matches;
+  MatchFeatures(left_descriptors, right_descriptors, stereo_matches);
 
-  cv::Mat matches_visualization;
-  cv::drawMatches(left_img, left_keypoints, right_img, right_keypoints, matches, matches_visualization);
-  cv::imshow("Matches Visualization", matches_visualization);
+  cv::Mat stereo_matches_visualization;
+  cv::drawMatches(left_img, left_keypoints, right_img, right_keypoints, stereo_matches, stereo_matches_visualization);
+  cv::imshow("Stereo Matches Visualization", stereo_matches_visualization);
   cv::waitKey(0);
+
+  std::unordered_map<int, cv::Point3f> points;
+  InverseProjection(left_keypoints, right_keypoints, stereo_matches, points);
+
+  bool ret = false;
+
+  if (!previous_points.empty()) {
+    ret = true;
+
+    std::vector<cv::DMatch> temporal_matches;
+    MatchFeatures(left_descriptors, previous_left_descriptors, temporal_matches);
+
+    // cv::Mat temporal_matches_visualization;
+    // cv::drawMatches(left_img, left_keypoints, previous_left_img, previous_left_keypoints, temporal_matches, temporal_matches_visualization);
+    // cv::imshow("Temporal Matches Visualization", temporal_matches_visualization);
+    // cv::waitKey(0);
+
+    pose_inc = EstimateMotion(previous_points, points, temporal_matches);
+  }
+
+  previous_points = points;
+
+  previous_left_img = left_img;
+
+  previous_left_keypoints  = left_keypoints;
+  previous_right_keypoints = right_keypoints;
+
+  previous_left_descriptors  = left_descriptors;
+  previous_right_descriptors = right_descriptors;
+
+  return ret;
 }

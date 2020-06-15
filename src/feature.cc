@@ -17,6 +17,7 @@ void FeatureExtraction(
   brief->compute(img, keypoints, descriptors);
 }
 
+
 void MatchFeatures(
     const cv::Mat& left_descriptors, const cv::Mat& right_descriptors, 
     std::vector<cv::DMatch>& matches) {
@@ -47,7 +48,6 @@ void MatchFeatures(
 }
 
 
-
 void DetectKeyPoints(const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints) {
   // compute FAST response
   cv::Mat response = ComputeResponse(img, kThreshold);
@@ -64,6 +64,7 @@ void DetectKeyPoints(const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints) {
 
   ComputeOrientation(img, keypoints, kWindowSize);
 }
+
 
 cv::Mat ComputeResponse(const cv::Mat& img, int threshold) {
   cv::Mat response = cv::Mat::zeros(cv::Size(img.cols, img.rows), CV_32F);
@@ -132,6 +133,7 @@ cv::Mat ComputeResponse(const cv::Mat& img, int threshold) {
   return response;
 }
 
+
 void NonMaximumSuppression(cv::Mat& response, cv::Mat& is_localmax, int window_size) {
   cv::Mat local_maxes = cv::Mat::zeros(cv::Size(response.cols, response.rows), CV_32F);
   for (int i = window_size/2; i < response.rows-window_size/2; i++) {
@@ -154,6 +156,7 @@ void NonMaximumSuppression(cv::Mat& response, cv::Mat& is_localmax, int window_s
   }
 }
 
+
 void ComputeOrientation(const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints, int window_size) {
   int m01 = 0, m10 = 0;
   for (auto kpt : keypoints) {
@@ -166,6 +169,7 @@ void ComputeOrientation(const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints
     kpt.angle = atan((float)m01/m10);
   }
 }
+
 
 double ComputeHammingDistance(
     const cv::Mat& left_descriptors,  int i, 
