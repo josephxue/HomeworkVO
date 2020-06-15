@@ -42,11 +42,18 @@ int main (int argc, char** argv) {
   params.K.cu = 313.15;
   params.K.cv = 94.58;
   params.baseline = 0.54;
+  params.ransac_iterations = 200;
 
   // pose from camera to world
   Eigen::Matrix4d pose = Eigen::MatrixXd::Identity(4,4);
-
   for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 4; j++) {
+      outfile << pose(i, j) << " ";
+    }
+  }
+  outfile << std::endl;
+
+  for (int i = 0; i < 7; i++) {
     // image file name
     char img_name[256]; sprintf(img_name, "%06d.png", i);
     std::string left_img_name  = sequence_directory + "/image_0/" + img_name;

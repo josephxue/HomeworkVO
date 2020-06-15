@@ -8,11 +8,23 @@
 
 void InverseProjection(
     const std::vector<cv::KeyPoint>& keypoints1, const std::vector<cv::KeyPoint>& keypoints2,
-    const std::vector<cv::DMatch> matches, std::unordered_map<int, cv::Point3f>& points);
+    const std::vector<cv::DMatch> matches, std::vector<cv::Point3f>& points);
 
-Eigen::Matrix4d EstimateMotion(
-    std::unordered_map<int, cv::Point3f>& previous_points, 
-    std::unordered_map<int, cv::Point3f>& current_points,
+Eigen::Matrix4d ICP(
+    const std::vector<cv::Point3f>& previous_points, 
+    const std::vector<cv::Point3f>& current_points,
+    const std::vector<cv::DMatch>& matches, const std::vector<int>& active_idxs);
+
+Eigen::Matrix4d RANSACEstimateMotion(
+    const std::vector<cv::Point3f>& previous_points, 
+    const std::vector<cv::Point3f>& current_points,
     const std::vector<cv::DMatch>& matches);
+
+std::vector<int> GetRandomSample(int N, int num);
+
+int GetInliersNum(
+    const std::vector<cv::Point3f>& previous_points, 
+    const std::vector<cv::Point3f>& current_points,
+    const std::vector<cv::DMatch>& matches, const Eigen::Matrix4d& pose);
 
 #endif

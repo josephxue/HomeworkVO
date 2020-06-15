@@ -3,12 +3,13 @@
 #include <iostream>
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
 
 #include "motion.h"
 #include "feature.h"
 
 
-std::unordered_map<int, cv::Point3f> previous_points;
+std::vector<cv::Point3f> previous_points;
 std::vector<cv::KeyPoint> previous_left_keypoints, previous_right_keypoints;
 
 cv::Mat previous_left_img;
@@ -33,12 +34,12 @@ bool ProcessFrame(
   std::vector<cv::DMatch> stereo_matches;
   MatchFeatures(left_descriptors, right_descriptors, stereo_matches);
 
-  cv::Mat stereo_matches_visualization;
-  cv::drawMatches(left_img, left_keypoints, right_img, right_keypoints, stereo_matches, stereo_matches_visualization);
-  cv::imshow("Stereo Matches Visualization", stereo_matches_visualization);
-  cv::waitKey(0);
+  // cv::Mat stereo_matches_visualization;
+  // cv::drawMatches(left_img, left_keypoints, right_img, right_keypoints, stereo_matches, stereo_matches_visualization);
+  // cv::imshow("Stereo Matches Visualization", stereo_matches_visualization);
+  // cv::waitKey(0);
 
-  std::unordered_map<int, cv::Point3f> points;
+  std::vector<cv::Point3f> points(left_keypoints.size(), cv::Point3f(-1, -1, -1));
   InverseProjection(left_keypoints, right_keypoints, stereo_matches, points);
 
   bool ret = false;
@@ -54,7 +55,7 @@ bool ProcessFrame(
     // cv::imshow("Temporal Matches Visualization", temporal_matches_visualization);
     // cv::waitKey(0);
 
-    pose_inc = EstimateMotion(previous_points, points, temporal_matches);
+    pose_inc = RANSACEstimateMotion(previous_points, points, temporal_matches);
   }
 
   previous_points = points;

@@ -42,7 +42,7 @@ void MatchFeatures(
   double min_dist = coarse_matches[0].distance;
     
   for (auto m : coarse_matches) {
-    if (m.distance <= std::max(2*min_dist, 30.0))
+    if (m.distance <= std::max(2*min_dist, 20.0))
       matches.emplace_back(m);
   }
 }

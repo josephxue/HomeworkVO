@@ -10,8 +10,6 @@ struct Params {
 
   double baseline;
 
-
-
-  /* data */
+  int ransac_iterations;
 };
 
