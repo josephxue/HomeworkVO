@@ -29,6 +29,8 @@ def main():
   plt.plot(homework_x, homework_y, label="HomeworkVO", linewidth=1)
 
   plt.axis('square')
+  plt.xlim(-25, 25)
+  plt.ylim(0,   50)
   plt.legend()
   plt.savefig("trajectory.svg", bbox_inches='tight')
 
