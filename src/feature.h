@@ -16,7 +16,7 @@ void FeatureExtraction(
     const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors);
 
 void MatchFeatures(
-    const cv::Mat& left_descriptors, const cv::Mat& right_descriptors, 
+    const cv::Mat& descriptors1, const cv::Mat& descriptors2, 
     std::vector<cv::DMatch>& matches);
 
 void DetectKeyPoints(const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints);

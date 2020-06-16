@@ -19,15 +19,15 @@ void FeatureExtraction(
 
 
 void MatchFeatures(
-    const cv::Mat& left_descriptors, const cv::Mat& right_descriptors, 
+    const cv::Mat& descriptors1, const cv::Mat& descriptors2, 
     std::vector<cv::DMatch>& matches) {
   
   // do coarse matching 
   std::vector<cv::DMatch> coarse_matches;
-  for (int i = 0; i < left_descriptors.rows; i++) {
+  for (int i = 0; i < descriptors1.rows; i++) {
     double min_hamming_dist = 10000; int min_j;
-    for (int j = 0; j < right_descriptors.rows; j++) {
-      double hamming_dist = ComputeHammingDistance(left_descriptors, i, right_descriptors, j);
+    for (int j = 0; j < descriptors2.rows; j++) {
+      double hamming_dist = ComputeHammingDistance(descriptors1, i, descriptors2, j);
 
       if (hamming_dist < min_hamming_dist) {
         min_hamming_dist = hamming_dist;
@@ -42,7 +42,7 @@ void MatchFeatures(
   double min_dist = coarse_matches[0].distance;
     
   for (auto m : coarse_matches) {
-    if (m.distance <= std::max(2*min_dist, 20.0))
+    if (m.distance <= std::max(2*min_dist, 15.0))
       matches.emplace_back(m);
   }
 }
