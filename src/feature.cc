@@ -25,6 +25,8 @@ void MatchFeatures(
   // do coarse matching 
   std::vector<cv::DMatch> coarse_matches;
   for (int i = 0; i < descriptors1.rows; i++) {
+
+    // brutal force match
     double min_hamming_dist = 10000; int min_j;
     for (int j = 0; j < descriptors2.rows; j++) {
       double hamming_dist = ComputeHammingDistance(descriptors1, i, descriptors2, j);
@@ -51,11 +53,12 @@ void MatchFeatures(
 void DetectKeyPoints(const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints) {
   // compute FAST response
   cv::Mat response = ComputeResponse(img, kThreshold);
-  
+
   cv::Mat is_localmax = cv::Mat::zeros(cv::Size(response.cols, response.rows), CV_8U);
   NonMaximumSuppression(response, is_localmax, kWindowSize);
-  std::vector<cv::Point> fast_locations;
 
+  // find local max position to be FAST position
+  std::vector<cv::Point> fast_locations;
   cv::findNonZero(is_localmax, fast_locations);
 
   for (const auto& fl: fast_locations) {
@@ -179,6 +182,7 @@ double ComputeHammingDistance(
     unsigned char u_left  = left_descriptors.at<uchar>(i,k);
     unsigned char u_right = right_descriptors.at<uchar>(j,k);
     while (u_left != u_right) {
+      // XOR on lowest bit
       ret += (u_left & 1) ^ (u_right & 1);
       u_left  >>= 1; 
       u_right >>= 1;

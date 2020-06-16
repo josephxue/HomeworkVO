@@ -15,8 +15,6 @@
 #include "feature.h"
 
 
-const bool kVisualize = false;
-
 const int kImageHeight = 192;
 const int kImageWidth  = 640;
 
@@ -24,7 +22,7 @@ Params params;
 
 
 int main (int argc, char** argv) {
-  if (argc<2) {
+  if (argc < 2) {
     std::cerr << "Usage: ./HomeworkVO path/to/sequence/03" << std::endl;
     return 1;
   }
@@ -62,8 +60,8 @@ int main (int argc, char** argv) {
     cv::Mat left_img  = cv::imread(left_img_name,  CV_8UC1);
     cv::Mat right_img = cv::imread(right_img_name, CV_8UC1);
 
-    cv::resize(left_img,  left_img, cv::Size(640, 192));
-    cv::resize(right_img, right_img, cv::Size(640, 192));
+    cv::resize(left_img,  left_img,  cv::Size(kImageWidth, kImageHeight));
+    cv::resize(right_img, right_img, cv::Size(kImageWidth, kImageHeight));
 
     if (left_img.empty() || right_img.empty()) {
       std::cerr << "Read images failed!" << std::endl;

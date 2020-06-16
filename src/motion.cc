@@ -38,6 +38,8 @@ Eigen::Matrix4d PnpEstimateMotion(
 
   for (auto m : matches) {
     cv::Point3f pt_3d = points[m.queryIdx];
+
+    // whether point has depth through stereo matching
     if (pt_3d.z > 0) {
       pts_3d.emplace_back(pt_3d);
       pts_2d.emplace_back(keypoints[m.trainIdx].pt);
@@ -51,12 +53,14 @@ Eigen::Matrix4d PnpEstimateMotion(
   K.at<float>(1,2) = params.K.cv;
 
   cv::Mat r, t;
+  // use OpenCV API
   cv::solvePnP(pts_3d, pts_2d, K, cv::Mat(), r, t, false);
-  std::cout << t << std::endl;
 
   cv::Mat R;
+  // transfer rotation vector to SO3(use OpenCV API)
   cv::Rodrigues(r, R);
 
+  // transfer cv::Mat to Eigen::Matrix4d
   Eigen::Matrix4d ret = Eigen::Matrix4d::Identity();
   ret(0,0) = R.at<float>(0,0); ret(0,1) = R.at<float>(0,1); ret(0,2) = R.at<float>(0,2); ret(0,3) = t.at<float>(0,0);
   ret(1,0) = R.at<float>(1,0); ret(1,1) = R.at<float>(1,1); ret(1,2) = R.at<float>(1,2); ret(1,3) = t.at<float>(1,0);
