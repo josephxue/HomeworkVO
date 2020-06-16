@@ -40,7 +40,6 @@ int main (int argc, char** argv) {
   params.K.cu = 314.05;
   params.K.cv = 88.49;
   params.baseline = 0.54;
-  params.ransac_iterations = 200;
 
   // pose from camera to world
   Eigen::Matrix4d pose = Eigen::MatrixXd::Identity(4,4);

@@ -7,9 +7,6 @@ struct Intrinsics {
 
 struct Params {
   Intrinsics K;
-
   double baseline;
-
-  int ransac_iterations;
 };
 
