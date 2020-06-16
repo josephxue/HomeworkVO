@@ -25,7 +25,7 @@ Params params;
 
 int main (int argc, char** argv) {
   if (argc<2) {
-    std::cerr << "Usage: ./HomeworkVO path/to/sequence/00" << std::endl;
+    std::cerr << "Usage: ./HomeworkVO path/to/sequence/03" << std::endl;
     return 1;
   }
 
@@ -37,10 +37,10 @@ int main (int argc, char** argv) {
   }
 
   // set camera parameters
-  params.K.fx = 370.75;
-  params.K.fy = 367.08;
-  params.K.cu = 313.15;
-  params.K.cv = 94.58;
+  params.K.fx = 371.78;
+  params.K.fy = 369.43;
+  params.K.cu = 314.05;
+  params.K.cv = 88.49;
   params.baseline = 0.54;
   params.ransac_iterations = 200;
 
@@ -53,7 +53,7 @@ int main (int argc, char** argv) {
   }
   outfile << std::endl;
 
-  for (int i = 0; i < 7; i++) {
+  for (int i = 0; i < 50; i++) {
     // image file name
     char img_name[256]; sprintf(img_name, "%06d.png", i);
     std::string left_img_name  = sequence_directory + "/image_0/" + img_name;
@@ -62,15 +62,15 @@ int main (int argc, char** argv) {
     cv::Mat left_img  = cv::imread(left_img_name,  CV_8UC1);
     cv::Mat right_img = cv::imread(right_img_name, CV_8UC1);
 
+    cv::resize(left_img,  left_img, cv::Size(640, 192));
+    cv::resize(right_img, right_img, cv::Size(640, 192));
+
     if (left_img.empty() || right_img.empty()) {
       std::cerr << "Read images failed!" << std::endl;
       return 2;
     }
 
-    cv::resize(left_img,  left_img,  cv::Size(640, 192), cv::INTER_LINEAR);
-    cv::resize(right_img, right_img, cv::Size(640, 192), cv::INTER_LINEAR);
-
-    Eigen::Matrix4d pose_inc;
+    Eigen::Matrix4d pose_inc = Eigen::MatrixXd::Identity(4,4);
 
     // entry to algorithm
     if (ProcessFrame(left_img, right_img, pose_inc)) {

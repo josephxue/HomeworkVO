@@ -10,10 +10,10 @@
 
 
 std::vector<cv::Point3f> previous_points;
-std::vector<cv::KeyPoint> previous_left_keypoints, previous_right_keypoints;
+std::vector<cv::KeyPoint> previous_left_keypoints;
 
 cv::Mat previous_left_img;
-cv::Mat previous_left_descriptors, previous_right_descriptors;
+cv::Mat previous_left_descriptors;
 
 
 bool ProcessFrame(
@@ -48,25 +48,20 @@ bool ProcessFrame(
     ret = true;
 
     std::vector<cv::DMatch> temporal_matches;
-    MatchFeatures(left_descriptors, previous_left_descriptors, temporal_matches);
+    MatchFeatures(previous_left_descriptors, left_descriptors, temporal_matches);
 
     // cv::Mat temporal_matches_visualization;
     // cv::drawMatches(left_img, left_keypoints, previous_left_img, previous_left_keypoints, temporal_matches, temporal_matches_visualization);
     // cv::imshow("Temporal Matches Visualization", temporal_matches_visualization);
     // cv::waitKey(0);
 
-    pose_inc = RANSACEstimateMotion(previous_points, points, temporal_matches);
+    pose_inc = PnpEstimateMotion(previous_points, left_keypoints, temporal_matches);
   }
 
   previous_points = points;
-
   previous_left_img = left_img;
-
   previous_left_keypoints  = left_keypoints;
-  previous_right_keypoints = right_keypoints;
-
   previous_left_descriptors  = left_descriptors;
-  previous_right_descriptors = right_descriptors;
 
   return ret;
 }
