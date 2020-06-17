@@ -16,9 +16,6 @@ include_directories(
 
 aux_source_directory(src DIR_SRCS)
 
-# use sse3 instruction set
-SET(CMAKE_CXX_FLAGS "-msse3")
-
 # make release version
 set(CMAKE_BUILD_TYPE Release)
 
