@@ -175,17 +175,18 @@ void ComputeOrientation(const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints
 
 
 double ComputeHammingDistance(
-    const cv::Mat& left_descriptors,  int i, 
-    const cv::Mat& right_descriptors, int j) {
+    const cv::Mat& descriptors1, int i, 
+    const cv::Mat& descriptors2, int j) {
+
   double ret = 0;
   for (int k = 0; k < 32; k++) {
-    unsigned char u_left  = left_descriptors.at<uchar>(i,k);
-    unsigned char u_right = right_descriptors.at<uchar>(j,k);
-    while (u_left != u_right) {
+    unsigned char uchar1 = descriptors1.at<uchar>(i,k);
+    unsigned char uchar2 = descriptors2.at<uchar>(j,k);
+    while (uchar1!= uchar2) {
       // XOR on lowest bit
-      ret += (u_left & 1) ^ (u_right & 1);
-      u_left  >>= 1; 
-      u_right >>= 1;
+      ret += (uchar1 & 1) ^ (uchar2 & 1);
+      uchar1 >>= 1; 
+      uchar2 >>= 1;
     }
   }
   return ret;

@@ -26,7 +26,8 @@ void NonMaximumSuppression(
 
 
 void ComputeOrientation(
-    const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints, int window_size);
+    const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints, 
+    int window_size);
 
 
 void MatchFeatures(
@@ -35,8 +36,8 @@ void MatchFeatures(
 
 
 double ComputeHammingDistance(
-    const cv::Mat& left_descriptors,  int i, 
-    const cv::Mat& right_descriptors, int j);
+    const cv::Mat& descriptors1, int i, 
+    const cv::Mat& descriptors2, int j);
 
 
 #endif
