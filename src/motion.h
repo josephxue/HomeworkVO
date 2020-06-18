@@ -17,4 +17,25 @@ Eigen::Matrix4d PnpEstimateMotion(
     const std::vector<cv::DMatch> matches);
 
 
+Eigen::Matrix4d ICP(
+    const std::vector<cv::Point3f>& previous_points, 
+    const std::vector<cv::Point3f>& current_points,
+    const std::vector<cv::DMatch>& matches, const std::vector<int>& active_idxs);
+
+
+std::vector<int> GetRandomSample(int N, int num);
+
+
+int GetInliersNum(
+    const std::vector<cv::Point3f>& previous_points, 
+    const std::vector<cv::Point3f>& current_points,
+    const std::vector<cv::DMatch>& matches, const Eigen::Matrix4d& pose);
+
+
+Eigen::Matrix4d RANSACEstimateMotion(
+    const std::vector<cv::Point3f>& previous_points, 
+    const std::vector<cv::Point3f>& current_points,
+    const std::vector<cv::DMatch>& matches);
+
+
 #endif
