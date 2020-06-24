@@ -15,8 +15,8 @@ args = parser.parse_args()
 def main():
   kitti_data = np.loadtxt(Path(args.kitti))
   kitti_data = np.reshape(kitti_data, (kitti_data.shape[0], 3, 4))
-  kitti_x = kitti_data[:50,0,3]
-  kitti_y = kitti_data[:50,2,3]
+  kitti_x = kitti_data[:,0,3]
+  kitti_y = kitti_data[:,2,3]
 
   homework_data = np.loadtxt(Path(args.homework))
   homework_data = np.reshape(homework_data, (homework_data.shape[0], 3, 4))
