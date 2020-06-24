@@ -23,12 +23,8 @@ std::vector<Eigen::Matrix4d> poses;
 
 
 int main (int argc, char** argv) {
-  if (argc < 2) {
-    std::cerr << "Usage: ./HomeworkVO path/to/sequence/03" << std::endl;
-    return 1;
-  }
 
-  std::string sequence_directory = argv[1];
+  std::string sequence_directory = "../dataset";
 
   // set camera parameters
   params.K.fx = 371.78;
